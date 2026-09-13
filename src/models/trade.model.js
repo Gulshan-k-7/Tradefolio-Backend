@@ -20,7 +20,7 @@ const tradeSchema = new mongoose.Schema(
       uppercase: true,
     },
 
-    assetClass: {
+    tradeType: {
       type: String,
       required: true,
 

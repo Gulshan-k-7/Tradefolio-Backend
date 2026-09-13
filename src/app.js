@@ -1,8 +1,6 @@
 import express from "express";
 import cors from "cors";
 
-import authRoutes from "./routes/auth.routes.js";
-import tradeRoutes from "./routes/trade.routes.js";
 
 const app = express();
 
@@ -23,7 +21,15 @@ app.get("/", (req, res) => {
   });
 });
 
+import authRoutes from "./routes/auth.routes.js";
+import tradeRoutes from "./routes/trade.routes.js";
+import tradingOptionRoutes from "./routes/tradingOption.routes.js";
+
+
+
 app.use("/api/auth", authRoutes);
+
+app.use("/api/trading-options", tradingOptionRoutes);
 
 app.use("/api/trades", tradeRoutes);
 

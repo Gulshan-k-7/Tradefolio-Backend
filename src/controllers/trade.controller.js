@@ -15,10 +15,10 @@ export const createTrade = asyncHandler(async (req, res) => {
         });
     }
 
-    const { date, symbol, assetClass, side, buyPrice, sellPrice, size, brokerage, rMultiple, setup, notes, } = req.body;
+    const { date, symbol, tradeType, side, buyPrice, sellPrice, size, brokerage, rMultiple, setup, notes, } = req.body;
 
     const pnl = (sellPrice - buyPrice) * size - brokerage;
-    if (!date || !symbol || !assetClass || !side || buyPrice === "" || sellPrice === "" || size === "") {
+    if (!date || !symbol || !tradeType || !side || buyPrice === "" || sellPrice === "" || size === "") {
         return res.status(400).json({
             success: false,
             message: "Required fields are missing",
@@ -29,7 +29,7 @@ export const createTrade = asyncHandler(async (req, res) => {
         user: user._id,
         date,
         symbol,
-        assetClass,
+        tradeType,
         side,
         buyPrice: Number(buyPrice),
         sellPrice: Number(sellPrice),
@@ -95,7 +95,7 @@ export const updateTrade = async (req, res) => {
             });
         }
 
-        const { date, symbol, assetClass, side, buyPrice, sellPrice, size, brokerage, rMultiple, setup } = req.body;
+        const { date, symbol, tradeType, side, buyPrice, sellPrice, size, brokerage, rMultiple, setup } = req.body;
 
         const pnl = (sellPrice - buyPrice) * size - brokerage;
 
@@ -105,7 +105,7 @@ export const updateTrade = async (req, res) => {
                 user: user._id,
             },
             {
-                date, symbol, assetClass, side, buyPrice: Number(buyPrice), sellPrice: Number(sellPrice), size: Number(size),  rMultiple: rMultiple === "" ? null : Number(rMultiple), setup, pnl: Number(pnl), brokerage: Number(brokerage)
+                date, symbol, tradeType, side, buyPrice: Number(buyPrice), sellPrice: Number(sellPrice), size: Number(size),  rMultiple: rMultiple === "" ? null : Number(rMultiple), setup, pnl: Number(pnl), brokerage: Number(brokerage)
             },
             {
                 returnDocument: "after",
