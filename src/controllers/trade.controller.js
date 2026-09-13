@@ -4,8 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 
 export const createTrade = asyncHandler(async (req, res) => {
-    console.log("i am here")
-    
+
     const user = await User.findOne({
         firebaseUid: req.firebaseUser.uid,
     });
@@ -56,6 +55,89 @@ export const createTrade = asyncHandler(async (req, res) => {
 
 export const getTrades = asyncHandler(async (req, res) => {
     const user = await User.findOne({
+        firebaseUid: req.firebaseUser.uid,
+    });
+
+    if (!user) {
+        return res.status(404).json({
+            success: false,
+            message: "User not found",
+        });
+    }
+
+    const trades = await Trade.find({
+        user: user._id,
+    }).sort({
+        date: -1,
+        createdAt: -1,
+    });
+
+    return res.status(200).json({
+        success: true,
+        count: trades.length,
+        trades,
+    });
+
+}
+
+)
+
+export const updateTrade = async (req, res) => {
+    try {
+        const user = await User.findOne({
+            firebaseUid: req.firebaseUser.uid,
+        });
+
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        const { date, symbol, assetClass, side, buyPrice, sellPrice, size, brokerage, rMultiple, setup } = req.body;
+
+        const pnl = (sellPrice - buyPrice) * size - brokerage;
+
+        const trade = await Trade.findOneAndUpdate(
+            {
+                _id: req.params.id,
+                user: user._id,
+            },
+            {
+                date, symbol, assetClass, side, buyPrice: Number(buyPrice), sellPrice: Number(sellPrice), size: Number(size),  rMultiple: rMultiple === "" ? null : Number(rMultiple), setup, pnl: Number(pnl), brokerage: Number(brokerage)
+            },
+            {
+                returnDocument: "after",
+                runValidators: true,
+            }
+        );
+
+        if (!trade) {
+            return res.status(404).json({
+                success: false,
+                message: "Trade not found",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Trade updated successfully",
+            trade,
+        });
+    } catch (error) {
+        console.error("Update trade error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to update trade",
+        });
+    }
+};
+
+export const deleteTrade = async (req, res) => {
+  try {
+    const user = await User.findOne({
       firebaseUid: req.firebaseUser.uid,
     });
 
@@ -66,19 +148,29 @@ export const getTrades = asyncHandler(async (req, res) => {
       });
     }
 
-    const trades = await Trade.find({
+    const trade = await Trade.findOneAndDelete({
+      _id: req.params.id,
       user: user._id,
-    }).sort({
-      date: -1,
-      createdAt: -1,
     });
+
+    if (!trade) {
+      return res.status(404).json({
+        success: false,
+        message: "Trade not found",
+      });
+    }
 
     return res.status(200).json({
       success: true,
-      count: trades.length,
-      trades,
+      message: "Trade deleted successfully",
+      tradeId: trade._id,
     });
-  
-}
+  } catch (error) {
+    console.error("Delete trade error:", error);
 
-)
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete trade",
+    });
+  }
+};
