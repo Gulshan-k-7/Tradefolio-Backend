@@ -25,12 +25,12 @@ import authRoutes from "./routes/auth.routes.js";
 import tradeRoutes from "./routes/trade.routes.js";
 import tradingOptionRoutes from "./routes/tradingOption.routes.js";
 import fundRoutes from "./routes/fund.routes.js"
-
+import backtestRoutes from "./routes/backtest.routes.js";
 
 app.use("/api/auth", authRoutes);
 
 app.use("/api/trading-options", tradingOptionRoutes);
-
+app.use("/api/backtests", backtestRoutes);
 app.use("/api/trades", tradeRoutes);
 app.use("/api/funds", fundRoutes);
 export default app;
