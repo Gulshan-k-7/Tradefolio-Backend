@@ -14,7 +14,6 @@ export const verifyFirebaseToken = async (req, res, next) => {
     const token = authorization.split("Bearer ")[1];
 
     const decodedToken = await firebaseAuth.verifyIdToken(token);
-    console.log("Decoded Firebase token:", decodedToken);
     req.firebaseUser = decodedToken;
 
     next();
