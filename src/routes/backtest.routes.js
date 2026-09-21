@@ -8,6 +8,6 @@ router.use(verifyFirebaseToken);
 
 router.get("/", getBacktestEntries);
 router.post("/", createBacktestEntry);
-router.delete("/:id", deleteBacktestEntry);
+router.delete("/", deleteBacktestEntry);
 
 export default router;

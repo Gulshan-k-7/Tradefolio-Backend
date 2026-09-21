@@ -16,7 +16,7 @@ export const createBacktestEntry = async (req, res) => {
 
     const { strategy, symbol, month, side, result, riskReward } = req.body;
 
-    if (!strategy || !symbol || !month || !side || !result || riskReward === "") {
+    if (!strategy || !symbol || !month || !side || !result) {
       return res.status(400).json({
         success: false,
         message: "All fields are required",
@@ -25,12 +25,7 @@ export const createBacktestEntry = async (req, res) => {
 
     const rr = Number(riskReward);
 
-    if (!Number.isFinite(rr) || rr <= 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Risk reward ratio must be greater than 0",
-      });
-    }
+   
 
     const entry = await Backtest.create({
       user: user._id,
@@ -39,7 +34,7 @@ export const createBacktestEntry = async (req, res) => {
       month,
       side,
       result,
-      riskReward: rr,
+      riskReward: rr || 0,
     });
 
     return res.status(201).json({
@@ -97,33 +92,31 @@ export const deleteBacktestEntry = async (req, res) => {
       firebaseUid: req.firebaseUser.uid,
     });
 
-    if (!user) {
-      return res.status(404).json({
+    const { month } = req.body;
+
+    if (!month) {
+      return res.status(400).json({
         success: false,
-        message: "User not found",
+        message: "Month is required",
       });
     }
 
-    const entry = await Backtest.findOneAndDelete({
-      _id: req.params.id,
+    const result = await Backtest.deleteMany({
       user: user._id,
+      month: month,
     });
-
-    if (!entry) {
-      return res.status(404).json({
-        success: false,
-        message: "Backtest entry not found",
-      });
-    }
-
     return res.status(200).json({
       success: true,
-      entryId: entry._id,
+      message: `Backtest data for ${month} deleted successfully`,
+      deletedCount: result.deletedCount,
     });
   } catch (error) {
+    console.error("Delete backtest error:", error);
+
     return res.status(500).json({
       success: false,
-      message: "Failed to delete backtest entry",
+      message: "Failed to delete backtest data",
+      error: error.message,
     });
   }
 };
